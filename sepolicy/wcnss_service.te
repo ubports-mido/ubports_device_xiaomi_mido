@@ -1,0 +1,1 @@
+allow wcnss_service shell_exec:file execute;

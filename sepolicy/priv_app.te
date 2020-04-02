@@ -1,0 +1,4 @@
+#============= priv_app ==============
+# May remove later
+allow priv_app device:dir read;
+allow priv_app device:dir open;

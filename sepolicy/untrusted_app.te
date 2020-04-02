@@ -1,0 +1,4 @@
+allow untrusted_app block_device:dir { open read };
+allow untrusted_app sysfs:dir { open read };
+allow untrusted_app sysfs:file { getattr open read };
+allow untrusted_app device:file read;
