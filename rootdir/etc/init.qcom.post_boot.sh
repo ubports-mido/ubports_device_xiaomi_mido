@@ -67,31 +67,31 @@ function configure_memory_parameters() {
     set_almk_ppr_adj=$(((set_almk_ppr_adj * 6) + 6))
     echo $set_almk_ppr_adj > /sys/module/lowmemorykiller/parameters/adj_max_shift
     echo $set_almk_ppr_adj > /sys/module/process_reclaim/parameters/min_score_adj
-    echo 1 > /sys/module/process_reclaim/parameters/enable_process_reclaim
-    echo 70 > /sys/module/process_reclaim/parameters/pressure_max
-    echo 30 > /sys/module/process_reclaim/parameters/swap_opt_eff
-    echo 1 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
+    #echo 1 > /sys/module/process_reclaim/parameters/enable_process_reclaim
+    #echo 70 > /sys/module/process_reclaim/parameters/pressure_max
+    #echo 30 > /sys/module/process_reclaim/parameters/swap_opt_eff
+    #echo 1 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
     if [ "$arch_type" == "aarch64" ] && [ $MemTotal -gt 2097152 ]; then
-        echo 10 > /sys/module/process_reclaim/parameters/pressure_min
-        echo 1024 > /sys/module/process_reclaim/parameters/per_swap_size
+        #echo 10 > /sys/module/process_reclaim/parameters/pressure_min
+        #echo 1024 > /sys/module/process_reclaim/parameters/per_swap_size
         echo "18432,23040,27648,32256,55296,80640" > /sys/module/lowmemorykiller/parameters/minfree
         echo 81250 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
         adjZeroMinFree=18432
     elif [ "$arch_type" == "aarch64" ] && [ $MemTotal -gt 1048576 ]; then
-        echo 10 > /sys/module/process_reclaim/parameters/pressure_min
-        echo 1024 > /sys/module/process_reclaim/parameters/per_swap_size
+        #echo 10 > /sys/module/process_reclaim/parameters/pressure_min
+        #echo 1024 > /sys/module/process_reclaim/parameters/per_swap_size
         echo "14746,18432,22118,25805,40000,55000" > /sys/module/lowmemorykiller/parameters/minfree
         echo 81250 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
         adjZeroMinFree=14746
     elif [ "$arch_type" == "aarch64" ]; then
-        echo 50 > /sys/module/process_reclaim/parameters/pressure_min
-        echo 512 > /sys/module/process_reclaim/parameters/per_swap_size
+        #echo 50 > /sys/module/process_reclaim/parameters/pressure_min
+        #echo 512 > /sys/module/process_reclaim/parameters/per_swap_size
         echo "14746,18432,22118,25805,40000,55000" > /sys/module/lowmemorykiller/parameters/minfree
         echo 81250 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
         adjZeroMinFree=14746
     else
-        echo 50 > /sys/module/process_reclaim/parameters/pressure_min
-        echo 512 > /sys/module/process_reclaim/parameters/per_swap_size
+        #echo 50 > /sys/module/process_reclaim/parameters/pressure_min
+        #echo 512 > /sys/module/process_reclaim/parameters/per_swap_size
         echo "15360,19200,23040,26880,34415,43737" > /sys/module/lowmemorykiller/parameters/minfree
         echo 53059 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
         adjZeroMinFree=15360
@@ -130,6 +130,31 @@ function configure_memory_parameters() {
         mkswap /data/system/swap/swapfile
         swapon /data/system/swap/swapfile -p 32758
     fi
+}
+
+function set_rt_bandwidth()
+{
+        # The default RT bandwidth setttings for bg_non_interactive cgroup
+        # is 10 msec/1 sec. There should not be any active RT tasks in this
+        # cgroup, so the limited bandwidth is not a concern. But the tasks
+        # in this cgroup can be boosted to RT priority when they acquire a
+        # RT mutex. The RT throttling is exempted for boosted tasks, but when
+        # a kernel debug feature is turned on, we hit panic. We can opt out
+        # of  panic when a RT runqueue has boosted tasks, but that would mean
+        # a task acquiring a RT mutex can run for a very long time without
+        # getting noticed. Instead set the bg_non_interactive cgroup RT
+        # bandwidth settings to same as the root cgroup settings.
+
+        if [ ! -f /dev/cpuctl/bg_non_interactive/cpu.rt_runtime_us ]; then
+              return
+        fi
+
+        if [ ! -f /dev/cpuctl/cpu.rt_runtime_us ]; then
+              return
+        fi
+
+        rt_runtime=`cat /dev/cpuctl/cpu.rt_runtime_us`
+        echo $rt_runtime > /dev/cpuctl/bg_non_interactive/cpu.rt_runtime_us
 }
 
 case "$target" in
@@ -1105,6 +1130,8 @@ esac
 case "$target" in
     "msm8953")
 
+        set_rt_bandwidth
+
         if [ -f /sys/devices/soc0/soc_id ]; then
             soc_id=`cat /sys/devices/soc0/soc_id`
         else
@@ -1118,7 +1145,7 @@ case "$target" in
         fi
 
         case "$soc_id" in
-            "293" | "304" )
+            "293" | "304" | "338" )
 
                 # Start Host based Touch processing
                 case "$hw_platform" in
@@ -2227,6 +2254,8 @@ case "$target" in
         echo 128 > /sys/block/dm-0/queue/read_ahead_kb
         echo 128 > /sys/block/dm-1/queue/read_ahead_kb
         setprop sys.post_boot.parsed 1
+		rm /data/system/perfd/default_values
+        start perfd
         start gamed
     ;;
     "msm8974")

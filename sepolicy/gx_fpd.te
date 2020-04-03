@@ -47,3 +47,11 @@ allow gx_fpd self:capability dac_override;
 allow gx_fpd storage_file:dir search;
 allow gx_fpd storage_file:lnk_file read;
 r_dir_file(gx_fpd, firmware_file)
+
+# Test: missing gx_fpd sepolicies
+allow gx_fpd media_rw_data_file:dir { open read search };
+allow gx_fpd mnt_user_file:dir search;
+allow gx_fpd mnt_user_file:lnk_file read;
+allow gx_fpd sdcardfs:dir search;
+allow gx_fpd tmpfs:dir search;
+

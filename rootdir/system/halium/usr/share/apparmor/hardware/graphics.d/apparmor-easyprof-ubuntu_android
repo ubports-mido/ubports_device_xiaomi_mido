@@ -1,6 +1,7 @@
-/{,android/}/firmware/venus-v1.mdt r,
-/{,android/}/firmware/venus-v1.b00 r,
-/{,android/}/firmware/venus-v1.b01 r,
-/{,android/}/firmware/venus-v1.b02 r,
-/{,android/}/firmware/venus-v1.b03 r,
-/{,android/}/firmware/venus-v1.b04 r,
+/{,android/}/firmware/image/venus.mdt r,
+/{,android/}/firmware/image/venus.b00 r,
+/{,android/}/firmware/image/venus.b01 r,
+/{,android/}/firmware/image/venus.b02 r,
+/{,android/}/firmware/image/venus.b03 r,
+/{,android/}/firmware/image/venus.b04 r,
+
