@@ -1605,6 +1605,7 @@ case "$target" in
                 echo 50000 > /proc/sys/kernel/sched_freq_dec_notify
 
                 # Enable core control
+                insmod /system/lib/modules/core_ctl.ko
                 echo 2 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus
                 echo 4 > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus
                 echo 68 > /sys/devices/system/cpu/cpu0/core_ctl/busy_up_thres
