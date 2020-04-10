@@ -423,6 +423,8 @@ on boot
 	chown system system /dev/cpuset/camera-daemon/tasks
 	chmod 0664 /dev/cpuset/camera-daemon/tasks
 
+    setprop persist.sys.usb.config mtp
+
 service mtservice /system/bin/mtd
     class late_start
 
