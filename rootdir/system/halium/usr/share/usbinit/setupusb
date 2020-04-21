@@ -21,8 +21,10 @@ symlink() {
 setup_mtp() {
     write $ANDROID_USB/enable 0
     write $ANDROID_USB/android0/iSerial $SERIALNUMBER
-    write $ANDROID_USB/idVendor 05C6
-    write $ANDROID_USB/idProduct F003
+    write $ANDROID_USB/android0/iManufacturer $MANUFACTURER
+    write $ANDROID_USB/android0/iProduct $PRODUCT 
+    write $ANDROID_USB/idVendor 2717
+    write $ANDROID_USB/idProduct ff48
     write $ANDROID_USB/functions mtp
     write $ANDROID_USB/enable 1
     setprop sys.usb.state mtp
